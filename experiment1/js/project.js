@@ -25,6 +25,13 @@ function main() {
       "eleven",
       "twelve",
     ],
+    num2: [
+      1,
+      2,
+      3,
+      4,
+      5,
+    ],
     looty: ["copper", "silver", "gold"],
     loots: ["coins", "chalices", "ingots"],
     baddies: ["orcs", "glubs", "fishmen", "goblins", "ogres", "wolves"],
@@ -33,7 +40,7 @@ function main() {
   
   const template = `The $place of $pre$post is under attack by $num $baddies!
 
-You have $num days to finish this quest.
+You have $num2 days to finish this quest.
 
 Rewards: $num $looty $loots, $item_adj $item
   
