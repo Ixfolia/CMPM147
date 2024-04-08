@@ -33,7 +33,9 @@ function main() {
   
   const template = `The $place of $pre$post is under attack by $num $baddies!
 
-  Rewards: $num $looty $loots, $item_adj $item
+You have $num days to finish this quest.
+
+Rewards: $num $looty $loots, $item_adj $item
   
   
   `;
