@@ -173,32 +173,31 @@ function gridCheck(grid, i, j, target) {
 function gridCode(grid, i, j, target) {
   // TODO: Form a 4-bit code using gridCheck on the north/south/east/west neighbors of i,j for the target code.
   // You might us an example like (northBit<<0)+(southBit<<1)+(eastBit<<2)+(westBit<<3).
-  
+  let northBit = gridCheck(grid, i-1, j, target);
+  let southBit = gridCheck(grid, i+1, j, target);
+  let eastBit = gridCheck(grid, i, j+1, target);
+  let westBit = gridCheck(grid, i, j-1, target);
+
+  return (northBit<<0) + (southBit<<1) + (eastBit<<2) + (westBit<<3);
 
 }
 
-// function drawContext(grid, i, j, target, dti, dtj) {
-//   // TODO
-// }
+function drawContext(grid, i, j, target, dti, dtj) {
+  // TODO: Get the code for this location and target. 
+  // Use the code as an array index to get a pair of tile offset numbers. 
+  // const [tiOffset, tjOffset] = lookup[code]; placeTile(i, j, ti + tiOffset, tj + tjOffset);
 
-// const lookup = [
-//   [1,1],
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null
-// ];
+
+
+
+}
+
+const lookup = [
+// TODO: A global variable referring to an array of 16 elements. 
+// Fill this with hand-typed tile offset pairs, e.g. [2,1], so that drawContext does not need to handle any special cases.
+
+
+];
 
 // p2_solution.js ------------------------------
 
