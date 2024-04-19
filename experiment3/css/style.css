@@ -17,3 +17,9 @@ body {
     width: 100%;
     height: 600px;
 }
+
+#asciiBox {
+    position: absolute;
+    top: 120px;
+    left: 380px;
+}

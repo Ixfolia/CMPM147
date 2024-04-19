@@ -16,14 +16,14 @@ let canvasContainer;
 var centerHorz, centerVert;
 
 class MyClass {
-    constructor(param1, param2) {
-        this.property1 = param1;
-        this.property2 = param2;
-    }
+  constructor(param1, param2) {
+    this.property1 = param1;
+    this.property2 = param2;
+  }
 
-    myMethod() {
-        // code to run when method is called
-    }
+  myMethod() {
+    // code to run when method is called
+  }
 }
 
 function resizeScreen() {
@@ -42,15 +42,25 @@ function setup() {
   canvas.parent("canvas-container");
   // resize canvas is the page is resized
 
-  // create an instance of the class
-  myInstance = new MyClass("VALUE1", "VALUE2");
+  // // create an instance of the class
+  // myInstance = new MyClass("VALUE1", "VALUE2");
+  numCols = select("#asciiBox").attribute("rows") | 0;
+  numRows = select("#asciiBox").attribute("cols") | 0;
 
-  $(window).resize(function() {
+  createCanvas(16 * numCols, 16 * numRows).parent("canvasContainer");
+  select("canvas").elt.getContext("2d").imageSmoothingEnabled = false;
+
+  select("#reseedButton").mousePressed(reseed);
+  select("#asciiBox").input(reparseGrid);
+
+  reseed();
+
+  $(window).resize(function () {
     resizeScreen();
   });
   resizeScreen();
-}
 
+}
 
 // p2_base.js ------------------------------
 
@@ -108,20 +118,6 @@ function stringToGrid(str) {
   return grid;
 }
 
-function setup() {
-  numCols = select("#asciiBox").attribute("rows") | 0;
-  numRows = select("#asciiBox").attribute("cols") | 0;
-
-  createCanvas(16 * numCols, 16 * numRows).parent("canvasContainer");
-  select("canvas").elt.getContext("2d").imageSmoothingEnabled = false;
-
-  select("#reseedButton").mousePressed(reseed);
-  select("#asciiBox").input(reparseGrid);
-
-  reseed();
-}
-
-
 function draw() {
   randomSeed(seed);
   drawGrid(currentGrid);
@@ -131,12 +127,9 @@ function placeTile(i, j, ti, tj) {
   image(tilesetImage, 16 * j, 16 * i, 16, 16, 8 * ti, 8 * tj, 8, 8);
 }
 
-
 // p2_base.js ------------------------------
 
-
 // p2_solution.js ------------------------------
-
 
 /* exported generateGrid, drawGrid */
 /* global placeTile */
@@ -150,17 +143,17 @@ function generateGrid(numCols, numRows) {
     }
     grid.push(row);
   }
-  
+
   return grid;
 }
 
 function drawGrid(grid) {
   background(128);
 
-  for(let i = 0; i < grid.length; i++) {
-    for(let j = 0; j < grid[i].length; j++) {
-      if (grid[i][j] == '_') {
-        placeTile(i, j, (floor(random(4))), 0);
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      if (grid[i][j] == "_") {
+        placeTile(i, j, floor(random(4)), 0);
       }
     }
   }
@@ -168,13 +161,21 @@ function drawGrid(grid) {
 
 function gridCheck(grid, i, j, target) {
   // TODO: If location i,j is inside the grid (not out of bounds), does grid[i][j]==target? Otherise, return false.
-  return (i >= 0 && i < grid.length && j >= 0 && j < grid[i].length && grid[i][j] == target);
-  
+  return (
+    i >= 0 &&
+    i < grid.length &&
+    j >= 0 &&
+    j < grid[i].length &&
+    grid[i][j] == target
+  );
 }
 
-// function gridCode(grid, i, j, target) {
-//   // TODO
-// }
+function gridCode(grid, i, j, target) {
+  // TODO: Form a 4-bit code using gridCheck on the north/south/east/west neighbors of i,j for the target code.
+  // You might us an example like (northBit<<0)+(southBit<<1)+(eastBit<<2)+(westBit<<3).
+  
+
+}
 
 // function drawContext(grid, i, j, target, dti, dtj) {
 //   // TODO
@@ -199,10 +200,9 @@ function gridCheck(grid, i, j, target) {
 //   null
 // ];
 
-
 // p2_solution.js ------------------------------
 
 // mousePressed() function is called once after every time a mouse button is pressed
 function mousePressed() {
-    // code to run when mouse is pressed
+  // code to run when mouse is pressed
 }
