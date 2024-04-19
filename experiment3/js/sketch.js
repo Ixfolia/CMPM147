@@ -187,6 +187,11 @@ function drawContext(grid, i, j, target, dti, dtj) {
   // Use the code as an array index to get a pair of tile offset numbers. 
   // const [tiOffset, tjOffset] = lookup[code]; placeTile(i, j, ti + tiOffset, tj + tjOffset);
 
+  let code = gridCode(grid, i, j, target);
+
+  let [tiOffset, tjOffset] = lookup[code];
+
+  placeTile(i, j, ti + tiOffset, tj + tjOffset);
 
 
 
