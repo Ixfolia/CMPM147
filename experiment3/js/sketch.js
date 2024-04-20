@@ -135,11 +135,29 @@ function placeTile(i, j, ti, tj) {
 /* global placeTile */
 
 function generateGrid(numCols, numRows) {
+  /* TODO: To generate biomes in the overworld, consider using an expression like noise(i/10,j/10) > 0.5 to select one code or another in a chaotic but spatially coherent manner.
+           Try to keep the number of distinct codes used in your grid very small (2-4) so that it is easy to interactively edit and there are fewer combinations to handle in your renderer.
+*/
   let grid = [];
   for (let i = 0; i < numRows; i++) {
     let row = [];
     for (let j = 0; j < numCols; j++) {
-      row.push("_");
+      // Generate a Perlin noise value for the cell
+      let noiseValue = noise(i / 10, j / 10);
+
+      // Use the Perlin noise value to select one of two codes
+      let code;
+      if (noiseValue < 0.25) {
+        code = ":";
+      } else if (noiseValue < 0.5) {
+        code = ".";
+      } else if (noiseValue < 0.75) {
+        code = "w";
+      } else {
+        code = "m";
+      }
+
+      row.push(code);
     }
     grid.push(row);
   }
@@ -150,13 +168,26 @@ function generateGrid(numCols, numRows) {
 function drawGrid(grid) {
   background(128);
 
+  const g = 10;
+  const t = millis() / 1000.0;
+
+  noStroke();
   for (let i = 0; i < grid.length; i++) {
     for (let j = 0; j < grid[i].length; j++) {
-      if (grid[i][j] == "_") {
-        placeTile(i, j, floor(random(4)), 0);
+      if (gridCheck(grid, i, j, ":")) {
+        placeTile(i, j, 0, 3);
+      } else {
+        placeTile(i, j, (4 * pow(random(), g)) | 0, 0);
+      } 
+      if (gridCheck(grid, i, j, "w")) {
+        placeTile(i, j, (4 * pow(noise(t / 10, i, j / 4 + t), 2)) | 0, 14);
+        drawContext(grid, i, j, "w", 9, 3, true);
+      } else {
+        drawContext(grid, i, j, ".", 4, 0);
       }
     }
   }
+
 }
 
 function gridCheck(grid, i, j, target) {
@@ -171,38 +202,55 @@ function gridCheck(grid, i, j, target) {
 }
 
 function gridCode(grid, i, j, target) {
-  // TODO: Form a 4-bit code using gridCheck on the north/south/east/west neighbors of i,j for the target code.
-  // You might us an example like (northBit<<0)+(southBit<<1)+(eastBit<<2)+(westBit<<3).
-  let northBit = gridCheck(grid, i-1, j, target);
-  let southBit = gridCheck(grid, i+1, j, target);
-  let eastBit = gridCheck(grid, i, j+1, target);
-  let westBit = gridCheck(grid, i, j-1, target);
-
-  return (northBit<<0) + (southBit<<1) + (eastBit<<2) + (westBit<<3);
-
+  return (
+    (gridCheck(grid, i - 1, j, target) << 0) +
+    (gridCheck(grid, i, j - 1, target) << 1) +
+    (gridCheck(grid, i, j + 1, target) << 2) +
+    (gridCheck(grid, i + 1, j, target) << 3)
+  );
 }
 
-function drawContext(grid, i, j, target, dti, dtj) {
+function drawContext(grid, i, j, target, dti, dtj, invert = false) {
   // TODO: Get the code for this location and target. 
   // Use the code as an array index to get a pair of tile offset numbers. 
   // const [tiOffset, tjOffset] = lookup[code]; placeTile(i, j, ti + tiOffset, tj + tjOffset);
 
   let code = gridCode(grid, i, j, target);
 
+  // ChatGPT told me to add invert into the parameters
+  if (invert) {
+    code = 15 - code;
+  }
+
   let [tiOffset, tjOffset] = lookup[code];
 
-  placeTile(i, j, ti + tiOffset, tj + tjOffset);
-
-
+  placeTile(i, j, dti + tiOffset, dtj + tjOffset);
 
 }
 
 const lookup = [
 // TODO: A global variable referring to an array of 16 elements. 
 // Fill this with hand-typed tile offset pairs, e.g. [2,1], so that drawContext does not need to handle any special cases.
-
+  [1, 1],
+  [1, 0],
+  [0, 1],
+  [0, 0],
+  [2, 1], 
+  [2, 0], 
+  [1, 1],
+  [1, 0],
+  [1, 2], 
+  [1, 1],
+  [0, 2], 
+  [0, 1],
+  [2, 2], 
+  [2, 1],
+  [1, 2],
+  [1, 1]
 
 ];
+
+
 
 // p2_solution.js ------------------------------
 
