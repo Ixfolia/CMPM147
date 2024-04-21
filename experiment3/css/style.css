@@ -23,3 +23,9 @@ body {
     top: 120px;
     left: 380px;
 }
+
+#changeWorldButton {
+    position: absolute;
+    top: 78px;
+    left: 200px;
+}

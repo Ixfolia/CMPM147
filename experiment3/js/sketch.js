@@ -52,6 +52,7 @@ function setup() {
 
   select("#reseedButton").mousePressed(reseed);
   select("#asciiBox").input(reparseGrid);
+  select("#changeWorldButton").mousePressed(changeWorld);
 
   reseed();
 
@@ -59,7 +60,6 @@ function setup() {
     resizeScreen();
   });
   resizeScreen();
-
 }
 
 // p2_base.js ------------------------------
@@ -79,6 +79,13 @@ function preload() {
   );
 }
 
+let isDungeon = false; // toggle for changing between overworld and dungeon
+
+function changeWorld() {
+  isDungeon = !isDungeon; // toggle
+  grid = regenerateGrid();
+}
+
 function reseed() {
   seed = (seed | 0) + 1109;
   randomSeed(seed);
@@ -88,7 +95,9 @@ function reseed() {
 }
 
 function regenerateGrid() {
-  select("#asciiBox").value(gridToString(generateGrid(numCols, numRows)));
+  let grid = generateGrid(numCols, numRows);
+
+  select("#asciiBox").value(gridToString(grid));
   reparseGrid();
 }
 
@@ -143,30 +152,43 @@ function generateGrid(numCols, numRows) {
     let row = [];
     for (let j = 0; j < numCols; j++) {
       // Generate a Perlin noise value for the cell
-      let noiseValue = noise(i / 10, j / 10);
+      
       let code;
-      if (noiseValue < 0.2) {
-        code = ".";
-      } else if (noiseValue < 0.5) {
-        code = ".";
-      } else if (noiseValue < 0.68) {
-        code = "w";
-      } else if (noiseValue < 0.8) {
-        code = "m";
-      } else if (noiseValue < 0.9) { 
-        code = "t"; 
-      } else {
-        code = "h";
-      }
 
-      // If the code is ":" or ".", there's a 10% chance to change it to "h"
-      if ((code === ":" || code === ".") && Math.random() < 0.02) {
-        code = "h";
-      }
-      // If the code is ":" or ".", there's a 5% chance to change it to "t"
-      if ((code === ":" || code === ".") && Math.random() < 0.05) {
-        code = "t";
-      }
+      if (isDungeon) {
+        let noiseValue = noise(i / 10, j / 10);
+        if (noiseValue < 0.3) {
+          code = "r"; // spawn walls
+        } else {
+          code = "f"; // spawn floor
+        }
+
+
+      } else {
+        let noiseValue = noise(i / 10, j / 10);  
+        if (noiseValue < 0.2) {
+          code = ":";
+        } else if (noiseValue < 0.5) {
+          code = ".";
+        } else if (noiseValue < 0.68) {
+          code = "w";
+        } else if (noiseValue < 0.8) {
+          code = "m";
+        } else if (noiseValue < 0.9) {
+          code = "t";
+        } else {
+          code = "h";
+        }
+
+        // If the code is ":" or ".", there's a 10% chance to change it to "h"
+        if ((code === ":" || code === ".") && Math.random() < 0.02) {
+          code = "h";
+        }
+        // If the code is ":" or ".", there's a 5% chance to change it to "t"
+        if ((code === ":" || code === ".") && Math.random() < 0.05) {
+          code = "t";
+        }
+    }
 
       row.push(code);
     }
@@ -177,35 +199,64 @@ function generateGrid(numCols, numRows) {
 }
 
 function drawGrid(grid) {
-  background(128)
+  background(128);
 
   const g = 10;
   const t = millis() / 1000;
 
   noStroke();
-  for (let i = 0; i < grid.length; i++) {
-    for (let j = 0; j < grid[i].length; j++) {
-      if (gridCheck(grid, i, j, ":")) { // add dirt
-        placeTile(i, j, 0, 3);
-      } else if (gridCheck(grid, i, j, "m")) { // add mountain
-        placeTile(i, j, 15, 15);
-      } else if (gridCheck(grid, i, j, "t")) { // add tree
-        placeTile(i, j, 14, 0); 
-      } else {
-        placeTile(i, j, (4 * pow(random(), g)) | 0, 0);
-      } 
-      if (gridCheck(grid, i, j, "h")) { // add house
-        placeTile(i, j, 26, 0);
+  // overworld start
+
+  if (!isDungeon) {
+    for (let i = 0; i < grid.length; i++) {
+      for (let j = 0; j < grid[i].length; j++) {
+        if (gridCheck(grid, i, j, ":")) {
+          // add grass
+          placeTile(i, j, 0, 3);
+        } else if (gridCheck(grid, i, j, "m")) {
+          // add mountain
+          placeTile(i, j, 15, 15);
+        } else if (gridCheck(grid, i, j, "t")) {
+          // add tree
+          placeTile(i, j, 14, 0);
+        } else {
+          placeTile(i, j, (4 * pow(random(), g)) | 0, 0);
+        }
+        if (gridCheck(grid, i, j, "h")) {
+          // add house
+          placeTile(i, j, 26, 0);
+        }
+        if (gridCheck(grid, i, j, "w")) {
+          // add water with animation
+          placeTile(i, j, (4 * pow(noise(t / 10, i, j / 4 + t), 2)) | 0, 14);
+          drawContext(grid, i, j, "w", 9, 3, true);
+        } else {
+          drawContext(grid, i, j, ".", 4, 0); // add dirt
+        }
       }
-      if (gridCheck(grid, i, j, "w")) { // add water with animation
-        placeTile(i, j, (4 * pow(noise(t / 10, i, j / 4 + t), 2)) | 0, 14);
-        drawContext(grid, i, j, "w", 9, 3, true);
-      } else {
-        drawContext(grid, i, j, ".", 4, 0); // add grass
+    }
+  }
+  // overworld end
+
+  // dungeon start
+  else {
+    for (let i = 0; i < grid.length; i++) {
+      for (let j = 0; j < grid[i].length; j++) {
+        if (gridCheck(grid, i, j, "f")) {
+          // add floor
+          placeTile(i, j, 0, 21);
+        } else if (gridCheck(grid, i, j, "r")) {
+          // add wall
+          placeTile(i, j, 1, 21);
+        }
+
       }
 
     }
+
   }
+  // dungeon end
+
 
 }
 
@@ -230,8 +281,8 @@ function gridCode(grid, i, j, target) {
 }
 
 function drawContext(grid, i, j, target, dti, dtj, invert = false) {
-  // TODO: Get the code for this location and target. 
-  // Use the code as an array index to get a pair of tile offset numbers. 
+  // TODO: Get the code for this location and target.
+  // Use the code as an array index to get a pair of tile offset numbers.
   // const [tiOffset, tjOffset] = lookup[code]; placeTile(i, j, ti + tiOffset, tj + tjOffset);
 
   let code = gridCode(grid, i, j, target);
@@ -244,32 +295,28 @@ function drawContext(grid, i, j, target, dti, dtj, invert = false) {
   let [tiOffset, tjOffset] = lookup[code];
 
   placeTile(i, j, dti + tiOffset, dtj + tjOffset);
-
 }
 
 const lookup = [
-// TODO: A global variable referring to an array of 16 elements. 
-// Fill this with hand-typed tile offset pairs, e.g. [2,1], so that drawContext does not need to handle any special cases.
+  // TODO: A global variable referring to an array of 16 elements.
+  // Fill this with hand-typed tile offset pairs, e.g. [2,1], so that drawContext does not need to handle any special cases.
   [1, 1],
   [1, 0],
   [0, 1],
   [0, 0],
-  [2, 1], 
-  [2, 0], 
+  [2, 1],
+  [2, 0],
   [1, 1],
   [1, 0],
-  [1, 2], 
+  [1, 2],
   [1, 1],
-  [0, 2], 
+  [0, 2],
   [0, 1],
-  [2, 2], 
+  [2, 2],
   [2, 1],
   [1, 2],
-  [1, 1]
-
+  [1, 1],
 ];
-
-
 
 // p2_solution.js ------------------------------
 
