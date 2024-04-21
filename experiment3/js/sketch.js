@@ -144,17 +144,28 @@ function generateGrid(numCols, numRows) {
     for (let j = 0; j < numCols; j++) {
       // Generate a Perlin noise value for the cell
       let noiseValue = noise(i / 10, j / 10);
-
-      // Use the Perlin noise value to select one of two codes
       let code;
-      if (noiseValue < 0.25) {
-        code = ":";
+      if (noiseValue < 0.2) {
+        code = ".";
       } else if (noiseValue < 0.5) {
         code = ".";
-      } else if (noiseValue < 0.75) {
+      } else if (noiseValue < 0.68) {
         code = "w";
-      } else {
+      } else if (noiseValue < 0.8) {
         code = "m";
+      } else if (noiseValue < 0.9) { 
+        code = "t"; 
+      } else {
+        code = "h";
+      }
+
+      // If the code is ":" or ".", there's a 10% chance to change it to "h"
+      if ((code === ":" || code === ".") && Math.random() < 0.02) {
+        code = "h";
+      }
+      // If the code is ":" or ".", there's a 5% chance to change it to "t"
+      if ((code === ":" || code === ".") && Math.random() < 0.05) {
+        code = "t";
       }
 
       row.push(code);
@@ -166,25 +177,30 @@ function generateGrid(numCols, numRows) {
 }
 
 function drawGrid(grid) {
-  background(128);
-
-  const g = 10;
-  const t = millis() / 1000.0;
+  background(128)
 
   noStroke();
   for (let i = 0; i < grid.length; i++) {
     for (let j = 0; j < grid[i].length; j++) {
-      if (gridCheck(grid, i, j, ":")) {
+      if (gridCheck(grid, i, j, ":")) { // add dirt
         placeTile(i, j, 0, 3);
+      } else if (gridCheck(grid, i, j, "m")) { // add mountain
+        placeTile(i, j, 15, 15);
+      } else if (gridCheck(grid, i, j, "t")) { // add tree
+        placeTile(i, j, 14, 0); 
       } else {
         placeTile(i, j, (4 * pow(random(), g)) | 0, 0);
       } 
-      if (gridCheck(grid, i, j, "w")) {
+      if (gridCheck(grid, i, j, "h")) { // add house
+        placeTile(i, j, 26, 0);
+      }
+      if (gridCheck(grid, i, j, "w")) { // add water with animation
         placeTile(i, j, (4 * pow(noise(t / 10, i, j / 4 + t), 2)) | 0, 14);
         drawContext(grid, i, j, "w", 9, 3, true);
       } else {
-        drawContext(grid, i, j, ".", 4, 0);
+        drawContext(grid, i, j, ".", 4, 0); // add grass
       }
+
     }
   }
 
