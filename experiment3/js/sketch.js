@@ -179,6 +179,9 @@ function generateGrid(numCols, numRows) {
 function drawGrid(grid) {
   background(128)
 
+  const g = 10;
+  const t = millis() / 1000;
+
   noStroke();
   for (let i = 0; i < grid.length; i++) {
     for (let j = 0; j < grid[i].length; j++) {
