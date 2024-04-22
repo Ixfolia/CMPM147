@@ -152,7 +152,7 @@ function generateGrid(numCols, numRows) {
     let row = [];
     for (let j = 0; j < numCols; j++) {
       // Generate a Perlin noise value for the cell
-      
+
       let code;
 
       if (isDungeon) {
@@ -162,10 +162,8 @@ function generateGrid(numCols, numRows) {
         } else {
           code = "f"; // spawn floor
         }
-
-
       } else {
-        let noiseValue = noise(i / 10, j / 10);  
+        let noiseValue = noise(i / 10, j / 10);
         if (noiseValue < 0.2) {
           code = ":";
         } else if (noiseValue < 0.5) {
@@ -188,7 +186,7 @@ function generateGrid(numCols, numRows) {
         if ((code === ":" || code === ".") && Math.random() < 0.05) {
           code = "t";
         }
-    }
+      }
 
       row.push(code);
     }
@@ -249,15 +247,10 @@ function drawGrid(grid) {
           // add wall
           placeTile(i, j, 1, 21);
         }
-
       }
-
     }
-
   }
   // dungeon end
-
-
 }
 
 function gridCheck(grid, i, j, target) {
