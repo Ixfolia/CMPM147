@@ -156,8 +156,9 @@ function generateGrid(numCols, numRows) {
       let code;
 
       if (isDungeon) {
+        const roomSize = Math.floor(Math.random() * 7) + 4;
         let noiseValue = noise(i / 10, j / 10);
-        if (noiseValue < 0.3) {
+        if (i % roomSize === 0 || j % roomSize === 0 || i % roomSize === roomSize - 1 || j % roomSize === roomSize - 1) {
           code = "r"; // spawn walls
         } else {
           code = "f"; // spawn floor
@@ -209,7 +210,7 @@ function drawGrid(grid) {
     for (let i = 0; i < grid.length; i++) {
       for (let j = 0; j < grid[i].length; j++) {
         if (gridCheck(grid, i, j, ":")) {
-          // add grass
+          // add dirt
           placeTile(i, j, 0, 3);
         } else if (gridCheck(grid, i, j, "m")) {
           // add mountain
@@ -229,7 +230,7 @@ function drawGrid(grid) {
           placeTile(i, j, (4 * pow(noise(t / 10, i, j / 4 + t), 2)) | 0, 14);
           drawContext(grid, i, j, "w", 9, 3, true);
         } else {
-          drawContext(grid, i, j, ".", 4, 0); // add dirt
+          drawContext(grid, i, j, ".", 4, 0); // add grass
         }
       }
     }
@@ -246,6 +247,9 @@ function drawGrid(grid) {
         } else if (gridCheck(grid, i, j, "r")) {
           // add wall
           placeTile(i, j, 1, 21);
+        } else if (gridCheck(grid, i, j, "p")) {
+          // add hallway tile
+          drawContext(grid, i, j, "p", 5, 21);
         }
       }
     }
