@@ -75,7 +75,7 @@ let numRows, numCols;
 
 function preload() {
   tilesetImage = loadImage(
-    "https://cdn.glitch.com/25101045-29e2-407a-894c-e0243cd8c7c6%2FtilesetP8.png?v=1611654020438"
+    "https://cdn.glitch.com/25101045-29e2-407a-894c-e0243cd8c7c6%2Ftileset.png?v=1611654020439"
   );
 }
 
@@ -151,23 +151,15 @@ function generateGrid(numCols, numRows) {
   for (let i = 0; i < numRows; i++) {
     let row = [];
     for (let j = 0; j < numCols; j++) {
-      // Generate a Perlin noise value for the cell
-
       let code;
 
       if (isDungeon) {
-        const roomSize = Math.floor(Math.random() * 7) + 4;
-        let noiseValue = noise(i / 10, j / 10);
-        if (i % roomSize === 0 || j % roomSize === 0 || i % roomSize === roomSize - 1 || j % roomSize === roomSize - 1) {
-          code = "r"; // spawn walls
-        } else {
-          code = "f"; // spawn floor
-        }
+        code = generateRoom(i, j, 6);
       } else {
         let noiseValue = noise(i / 10, j / 10);
-        if (noiseValue < 0.2) {
+        if (noiseValue < 0.3) {
           code = ":";
-        } else if (noiseValue < 0.5) {
+        } else if (noiseValue < 0.6) {
           code = ".";
         } else if (noiseValue < 0.68) {
           code = "w";
@@ -197,6 +189,52 @@ function generateGrid(numCols, numRows) {
   return grid;
 }
 
+function generateRoom(i, j, roomSize) {
+  // tile coordinates within the room
+  let tileX = i % roomSize;
+  let tileY = j % roomSize;
+
+  // If the tile is on the edge of the room, it's a floor. Otherwise, it's a wall.
+  if (
+    tileX === 0 ||
+    tileY === 0 ||
+    tileX === roomSize - 1 ||
+    tileY === roomSize - 1
+  ) {
+    // Add a door in the middle of the room
+    if (
+      (tileX === 0 || tileX === roomSize - 1) &&
+      tileY === Math.floor(roomSize / 2)
+    ) {
+      // 50% chance to spawn a wall instead of a door
+      if (Math.random() < 0.5) {
+        return "r"; // spawn wall
+      } else {
+        return "d"; // spawn door
+      }
+    } else if (
+      (tileY === 0 || tileY === roomSize - 1) &&
+      tileX === Math.floor(roomSize / 2)
+    ) {
+      // 50% chance to spawn a wall instead of a door
+      if (Math.random() < 0.5) {
+        return "r"; // spawn wall
+      } else {
+        return "d"; // spawn door
+      }
+    } else {
+      // 4% chance to spawn a chest instead of a floor
+      if (Math.random() < 0.04) {
+        return "c"; // spawn chest
+      } else {
+        return "f"; // spawn floor
+      }
+    }
+  } else {
+    return "r"; // spawn wall
+  }
+}
+
 function drawGrid(grid) {
   background(128);
 
@@ -214,7 +252,8 @@ function drawGrid(grid) {
           placeTile(i, j, 0, 3);
         } else if (gridCheck(grid, i, j, "m")) {
           // add mountain
-          placeTile(i, j, 15, 15);
+          drawContext(grid, i, j, "m", 16, 16, true);
+          // placeTile(i, j, 15, 15);
         } else if (gridCheck(grid, i, j, "t")) {
           // add tree
           placeTile(i, j, 14, 0);
@@ -250,6 +289,12 @@ function drawGrid(grid) {
         } else if (gridCheck(grid, i, j, "p")) {
           // add hallway tile
           drawContext(grid, i, j, "p", 5, 21);
+        } else if (gridCheck(grid, i, j, "d")) {
+          // add door
+          placeTile(i, j, 5, 26);
+        } else if (gridCheck(grid, i, j, "c")) {
+          // add chest
+          drawContext(grid, i, j, "c", 2, 29);
         }
       }
     }
