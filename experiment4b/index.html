@@ -48,17 +48,28 @@
 
 			<div class="minor-section">
 				<h2><br><br>Description</h2>
-				<p>What are you trying to acomplish with this experiment?</p>
+				<p>Experiment 4b shows an infinite generated world, showing that of a beach alongside some trees and rocks.
+				   The darker blue parts of the water represents deeper water and it gradually lightens up as it gets closer to land.
+				</p>
 			</div>
 
 			<div class="minor-section">
 				<h2>Technical</h2>
-				<p>Describe in detail what you did technically and how it works?</p>
+				<p>I used noise to change the depth of the water, affecting the color of the tile and showing between shallow and deep water.
+					Water with an elevation below certain threshold are counted as deep water.
+					Higher threshold equals sand. 
+					Trees and rocks are based on their own hash values, with trees only placed on sand tiles while rocks have a low chance to be on a water tile.
+					Crabs are spawned in using the global crabs array and it's also used to check their coordinates.
+					After checking the coordinates, it sees if the crabs can move to adjacent tiles.
+				</p>
 			</div>
 
 			<div class="minor-section">
 				<h2>Reflection</h2>
-				<p>Each person that worked on the code should reflect on the process, the difficulties, and the successes of the experiment.</p>
+				<p>4b was a bit harder than 4a as I had to make the transition from water to sand.
+					Not only that, I had to figure out how to make the crabs move around as well.
+					However, I think it's the best looking world out of the three worlds.
+				</p>
 			</div>
 
 		</section>

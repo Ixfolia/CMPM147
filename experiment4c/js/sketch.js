@@ -299,22 +299,16 @@ function drawTile([world_x, world_y], [camera_x, camera_y]) {
     p3_drawAfter
 */
 
-let tree1, tree2;
-let treeSpawnThreshold = 0.8; // Higher threshold means less trees
-const timeInterval = 5000; // 5s
+let waterTiles = {};
+let waves;
 
 function p3_preload() {
-  tree1 = loadImage(
-    "https://cdn.glitch.global/3028cce0-4924-4da9-8d27-7a0841495b52/tree1.png?v=1714455637309"
-  );
-  tree2 = loadImage(
-    "https://cdn.glitch.global/3028cce0-4924-4da9-8d27-7a0841495b52/tree2.png?v=1714455637557"
+  waves = loadImage(
+    "https://cdn.glitch.global/6f56a828-8a44-450e-8256-26b1580a8657/waves.png?v=1714523852716"
   );
 }
 
-function p3_setup() {
-  setInterval(updateTreeSpawning, timeInterval);
-}
+function p3_setup() {}
 
 let worldSeed;
 
@@ -322,7 +316,16 @@ function p3_worldKeyChanged(key) {
   worldSeed = XXH.h32(key, 0);
   noiseSeed(worldSeed);
   randomSeed(worldSeed);
-  
+
+  clicks = {}; // Reset the clicks data structure
+
+  for (let i = 0; i < 10; i++) {
+    // Adjust according to your grid dimensions
+    for (let j = 0; j < 10; j++) {
+      let tileKey = `${i},${j}`;
+      waterTiles[tileKey] = random() < 0.2; // 20% chance to be water
+    }
+  }
 }
 
 function p3_tileWidth() {
@@ -343,53 +346,64 @@ function p3_tileClicked(i, j) {
 
 function p3_drawBefore() {}
 
-function updateTreeSpawning() {
-  // Slowly decrease the threshold so that trees are more likely to spawn
-  treeSpawnThreshold = Math.max(0.1, treeSpawnThreshold - 0.01); // Cap at 0.1 to avoid excessive tree population
-}
-
 function p3_drawTile(i, j) {
   noStroke();
-  let terrainNoise = noise(i * 0.1, j * 0.1);
-  let treeNoise = noise(i * 0.5, j * 0.5);
-  let avgTerrainNoise = getAverageTerrainNoise(i, j, 1);
+  let key = `${i},${j}`;
 
-  if (terrainNoise < 0.3) { // if less than 30%, tile is water
-    fill(0, 105, 148, 200);
-  } else {
-    // Check for water nearby to determine color
-    if (avgTerrainNoise < 0.3) {
-      // Lighter green for hydrated grass
-      fill(125, 184, 0, 200);
-    } else {
-      // Regular green for grass
-      fill(50, 108, 0, 200);
-    }
-  }
+  // Generate noise for water tile
+  let noiseValue = noise(i * 0.5, j * 0.5); // Adjust noise scale as needed
+  let isWater = noiseValue > 0.7; // Adjust threshold to control water coverage
+
+  let height = !isWater && (clicks[key] | 0) % 2 == 1 ? 33 : 0; // Rise if clicked and not water
+  let tileColor = isWater
+    ? color(0, 100, 255)
+    : height > 0
+    ? color(0, 255, 0)
+    : color(100, 200, 100);
 
   push();
+  translate(0, -height); // Move the tile up by its height to simulate 3D
+
+  // Top surface of the tile
+  fill(tileColor);
   beginShape();
   vertex(-tw, 0);
   vertex(0, th);
   vertex(tw, 0);
   vertex(0, -th);
   endShape(CLOSE);
-  
-  let n = clicks[[i, j]] | 0;
-  if (n % 2 == 1) {
-    translate(0, -10);
-    fill(50, 0, 0, 200);
-    ellipse(0, 0, 50, 10);
-  }
-  
-  // Draw trees based on updated spawning criteria
-  if (terrainNoise >= 0.3 && treeNoise > treeSpawnThreshold) {
-    let treeImg = treeNoise > 0.75 ? tree1 : tree2;
-    image(treeImg, -tw / 2, -th - treeImg.height / 2);
-  }
-  
 
-  
+  if (isWater) {
+    // Draw wave image with a random chance
+    if (frameCount % 60 == 0) {
+      // Every second if frame rate is 60 fps
+      if (random() < 0.5) {
+        // Then apply the probability check
+        image(waves, -tw, -th, tw * 2, th * 2);
+      }
+    }
+  } else if (height > 0) {
+    // Side face color - brown for earth
+    let sideColor = color(139, 69, 19); // brown color
+
+    // Draw the front face
+    fill(sideColor);
+    beginShape();
+    vertex(0, -th);
+    vertex(tw, 0);
+    vertex(tw, height);
+    vertex(0, height - th);
+    endShape(CLOSE);
+
+    // Draw the side face
+    beginShape();
+    vertex(0, -th);
+    vertex(0, height - th);
+    vertex(-tw, height);
+    vertex(-tw, 0);
+    endShape(CLOSE);
+  }
+
   pop();
 }
 
@@ -409,19 +423,8 @@ function p3_drawSelectedTile(i, j) {
   text("tile " + [i, j], 0, 0);
 }
 
-function getAverageTerrainNoise(i, j, range) {
-  let sum = 0;
-  let count = 0;
-  for (let di = -range; di <= range; di++) {
-    for (let dj = -range; dj <= range; dj++) {
-      sum += noise((i + di) * 0.1, (j + dj) * 0.1);
-      count++;
-    }
-  }
-  return sum / count;
-}
-
 function p3_drawAfter() {}
+
 
 
 // my_world.js end
