@@ -33,7 +33,26 @@
 		<section>
 
 			<h1>Experiment X - Subject/Topic</h1>
+			
+            <select id="dropper"></select>
+            <button id="restart">restart</button>
+            <p>
+			Mutation rate (<span id="rate"></span>%):<br /><input
+			id="slider"
+			type="range"
+			min="1"
+			max="100"
+			value="100"
+			/>
+            </p>
+            <p id="active"></p>
+            <p>Active score: <span id="activeScore"></span></p>
+            <p>Exploration rate: <span id="fpsCounter"></span> fps</p>
+            <p id="best"></p>
+            <p>Best score: <span id="bestScore"></span></p>
+            <p id="memory" data-max-items="16"></p>
 
+			
 			<div class="minor-section">
 				<div id="canvas-container">
 					<!-- canvas will be added here -->
@@ -57,6 +76,7 @@
 				<h2>Reflection</h2>
 				<p>Each person that worked on the code should reflect on the process, the difficulties, and the successes of the experiment.</p>
 			</div>
+
 
 		</section>
 		<nav id="links" class="minor-section">
