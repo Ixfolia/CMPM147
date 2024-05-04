@@ -212,23 +212,32 @@ resizeCanvas(inspiration.image.width / 4, inspiration.image.height / 4);
 function p4_initialize(inspiration) {
   // console.log("Logging p4_initialize || p4_initialize called with inspiration:", inspiration); // logging inspiration object
 
-  let design = { image: null, ready: false };
+  // let design = {
+  //   image: null,
+  //   ready: false,
+  //   circles: Array(10).fill().map(() => ({  // Initialize 10 circles
+  //     x: random(width),  // Random x position
+  //     y: random(height),  // Random y position
+  //     size: random(10, 100),  // Random size between 10 and 100
+  //     color: [random(255), random(255), random(255)]  // Random color
+  //   }))
+  // };
 
-  loadImage(inspiration.assetUrl, function(loadedImage) {
-    // console.log("Logging p4_initialize || Image loaded from URL:", inspiration.assetUrl); // making sure url works
+  // loadImage(inspiration.assetUrl, function(loadedImage) {
+  //   // console.log("Logging p4_initialize || Image loaded from URL:", inspiration.assetUrl); // making sure url works
 
-    design.image = loadedImage;
-    resizeCanvas(loadedImage.width, loadedImage.height);
-    design.ready = true;  // Indicate that the image is ready for rendering
+  //   design.image = loadedImage;
+  //   resizeCanvas(loadedImage.width, loadedImage.height);
+  //   design.ready = true;  // Indicate that the image is ready for rendering
 
-    // console.log("Logging p4_initialize || Design after image load:", design); // logging after image is loaded
+  //   // console.log("Logging p4_initialize || Design after image load:", design); // logging after image is loaded
 
-    redraw();  // This forces a redraw once the image is loaded
-  });
+  //   redraw();  // This forces a redraw once the image is loaded
+  // });
 
-  // console.log("Logging p4_initialize ||Design initialized:", design); // logging before image is loaded
+  // // console.log("Logging p4_initialize ||Design initialized:", design); // logging before image is loaded
 
-  return design;
+  // return design;
 }
 
 
@@ -249,16 +258,27 @@ if this is the case.
 let imageLoaded = true; // bool to see if image is loaded. Stops p4_render from spamming when false
 
 function p4_render(design, inspiration) {
-  if (design.ready) {  // Check if the image is ready
-    image(design.image, 0, 0);
-
-    // Use the inspiration image to influence your design
-    tint(inspiration.color);
-    image(inspiration.image, 0, 0, width, height);
-  } else if (imageLoaded){
-    console.log("Logging p4_render || Image is not loaded yet.");
-    imageLoaded = false;
-  }
+  // if (design.ready) {
+  //   // Iterate over each pixel in the image
+  //   for (let x = 0; x < design.image.width; x++) {
+  //     for (let y = 0; y < design.image.height; y++) {
+  //       // Get the color of the pixel in the image
+  //       let col = design.image.get(x, y);
+        
+  //       // Blend the color with the inspiration color
+  //       let blendedColor = blendColor(col, inspiration.color, BLEND);
+        
+  //       // Set the color of the pixel on the canvas
+  //       set(x, y, blendedColor);
+  //     }
+  //   }
+    
+  //   // Update the pixels on the canvas
+  //   updatePixels();
+  // } else if (imageLoaded){
+  //   console.log("Logging p4_render || Image is not loaded yet.");
+  //   imageLoaded = false;
+  // }
 }
 
 
@@ -279,17 +299,18 @@ function mut(num, min, max, rate) {
 */
 
 
-function mut(num, min, max, rate) {
-  return constrain(randomGaussian(num, (rate * (max - min)) / 20), min, max);
-}
+// function mut(num, min, max, rate) {
+//   return constrain(randomGaussian(num, (rate * (max - min)) / 20), min, max);
+// }
 
 function p4_mutate(design, inspiration, rate) {
-  // Example mutation: Suppose we have a parameter 'size' in the design object
-  if (design.size) {
-    design.size = mut(design.size, 10, 100, rate);  // Mutating 'size' within bounds
+  // design.circles.forEach(circle => {
+  //   circle.x = mut(circle.x, 0, width, rate);
+  //   circle.y = mut(circle.y, 0, height, rate);
+  //   circle.size = mut(circle.size, 10, 100, rate);
+  //   circle.color = circle.color.map(c => mut(c, 0, 255, rate));
+  // });
   }
-  // You can add more parameters to mutate based on your design requirements
-}
 
 
 // my_design.js end
