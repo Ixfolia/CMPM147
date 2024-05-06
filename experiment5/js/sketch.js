@@ -162,6 +162,9 @@ function draw() {
   }
   
   fpsCounter.innerHTML = Math.round(frameRate());
+
+    // Draw the original image on the right side of the canvas
+    image(currentInspiration.image, width, 0, width, height);
 }
 
 
@@ -186,6 +189,10 @@ assetUrl: string, URL of image in your Glitch assets bucket
 function p4_inspirations() {
   return [
     {
+      name: "Minecraft Shaders Image",
+      assetUrl: "https://cdn.glitch.global/fd8b4d5e-cacf-4452-bb21-66842720cd64/mcShaders.png?v=1714877775150"
+    },
+    {
       name: "Microsoft Edge Logo",
       assetUrl: "https://cdn.glitch.global/fd8b4d5e-cacf-4452-bb21-66842720cd64/edge%20logo.png?v=1714695443939"
     },
@@ -209,108 +216,73 @@ Your generator will run faster if you work with a smaller canvas:
 resizeCanvas(inspiration.image.width / 4, inspiration.image.height / 4);
 */
 
+// my_design.js start
+
+/* exported p4_inspirations, p4_initialize, p4_render, p4_mutate */
+
 function p4_initialize(inspiration) {
-  // console.log("Logging p4_initialize || p4_initialize called with inspiration:", inspiration); // logging inspiration object
+  // Resize the canvas to match the inspiration image size
+  let scaleFactor = 4;
+  resizeCanvas(inspiration.image.width / scaleFactor, inspiration.image.height / scaleFactor);
 
-  // let design = {
-  //   image: null,
-  //   ready: false,
-  //   circles: Array(10).fill().map(() => ({  // Initialize 10 circles
-  //     x: random(width),  // Random x position
-  //     y: random(height),  // Random y position
-  //     size: random(10, 100),  // Random size between 10 and 100
-  //     color: [random(255), random(255), random(255)]  // Random color
-  //   }))
-  // };
+  let design = {
+    bg: 128,
+    circles: Array(1000).fill().map(() => {  // Initialize 10 circles
+      let x = random(width);
+      let y = random(height);
+      let col = inspiration.image.get(x * scaleFactor, y * scaleFactor);  // Sample the color at the circle's location
+      return {
+        x: x,
+        y: y,
+        r: random(width/4), // radius of the circle
+        fill: color(col[0], col[1], col[2])  // Use the sampled color
+      };
+    })
+  };
 
-  // loadImage(inspiration.assetUrl, function(loadedImage) {
-  //   // console.log("Logging p4_initialize || Image loaded from URL:", inspiration.assetUrl); // making sure url works
-
-  //   design.image = loadedImage;
-  //   resizeCanvas(loadedImage.width, loadedImage.height);
-  //   design.ready = true;  // Indicate that the image is ready for rendering
-
-  //   // console.log("Logging p4_initialize || Design after image load:", design); // logging after image is loaded
-
-  //   redraw();  // This forces a redraw once the image is loaded
-  // });
-
-  // // console.log("Logging p4_initialize ||Design initialized:", design); // logging before image is loaded
-
-  // return design;
+  return design;
 }
-
-
-
-
-/*
-Edit the p4_render(design, inspiration)function to draw your parameterized design. 
-The design object is the one returned by p4_initialize(inspiration) and inspiration is the 
-currently selected inspiration object. You can use any p5.js drawing functions here, 
-but you should avoid any signs of life (animation or interaction). 
-We want every interesting varying detail of the design to be determined by the design object. 
-This function is always called just after executing randomSeed(0).
-If your design becomes overly complex, you’ll notice the “exploration rate” on the 
-display page drop below about 20 frames per second. Considering simplifying your design 
-if this is the case.
-*/
-
-let imageLoaded = true; // bool to see if image is loaded. Stops p4_render from spamming when false
 
 function p4_render(design, inspiration) {
-  // if (design.ready) {
-  //   // Iterate over each pixel in the image
-  //   for (let x = 0; x < design.image.width; x++) {
-  //     for (let y = 0; y < design.image.height; y++) {
-  //       // Get the color of the pixel in the image
-  //       let col = design.image.get(x, y);
-        
-  //       // Blend the color with the inspiration color
-  //       let blendedColor = blendColor(col, inspiration.color, BLEND);
-        
-  //       // Set the color of the pixel on the canvas
-  //       set(x, y, blendedColor);
-  //     }
-  //   }
-    
-  //   // Update the pixels on the canvas
-  //   updatePixels();
-  // } else if (imageLoaded){
-  //   console.log("Logging p4_render || Image is not loaded yet.");
-  //   imageLoaded = false;
-  // }
+  // Clear the canvas with the background color from the design
+  background(design.bg);
+
+  // Draw each circle in the design
+  design.circles.forEach(circle => {
+    // Set the fill color to the circle's color
+    fill(circle.fill);
+
+    // Draw the circle
+    ellipse(circle.x, circle.y, circle.r);
+  });
 }
 
-
- 
-/*
-Edit the p4_mutate(design, inspiration, rate)function to modify your parameterized design. 
-The design object is the one returned by p4_initialize(inspiration) and inspiration is the 
-currently selected inspiration object. The rate parameter is a number 
-between 0.0 and 1.0 based on the slider on the display page. 
-You can use this value to scale the amount of mutation applied to your design parameters. 
-It doesn’t have an effect until you incorporate it into the expressions used 
-to adjust your parameters.
-Here is a handy recipe for generating random mutations to a parameter with upper and 
-lower bounds: 
 function mut(num, min, max, rate) {
-    return constrain(randomGaussian(num, (rate * (max - min)) / 20), min, max);
+  return constrain(randomGaussian(num, (rate * (max - min)) / 20), min, max);
 }
-*/
-
-
-// function mut(num, min, max, rate) {
-//   return constrain(randomGaussian(num, (rate * (max - min)) / 20), min, max);
-// }
 
 function p4_mutate(design, inspiration, rate) {
-  // design.circles.forEach(circle => {
-  //   circle.x = mut(circle.x, 0, width, rate);
-  //   circle.y = mut(circle.y, 0, height, rate);
-  //   circle.size = mut(circle.size, 10, 100, rate);
-  //   circle.color = circle.color.map(c => mut(c, 0, 255, rate));
-  // });
-  }
+  console.log("p4_mutate || Before mutation: ", JSON.parse(JSON.stringify({...design})))
+
+  // Mutate the background color
+  design.bg = mut(design.bg, 0, 255, rate);
+
+  // Iterate over each circle in the design
+  design.circles.forEach(circle => {
+    // Mutate the circle's properties
+    circle.x = mut(circle.x, 0, width, rate);
+    circle.y = mut(circle.y, 0, height, rate);
+    circle.r = mut(circle.r, 0, width/4, rate); // mutate the radius
+
+    let scaleFactor = 4;
+    let col = inspiration.image.get(circle.x * scaleFactor, circle.y * scaleFactor);  // Sample the color at the new location
+    circle.fill = color(col[0], col[1], col[2]);  // Use the sampled color
+  });
+
+  console.log('p4_mutate || After mutation: ', JSON.parse(JSON.stringify({...design})));
+}
+
+// my_design.js end
 
 
 // my_design.js end
