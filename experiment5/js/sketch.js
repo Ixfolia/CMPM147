@@ -57,6 +57,7 @@ function setup() {
   image(currentInspiration.image, 0,0, width, height);
   loadPixels();
   currentInspirationPixels = pixels;
+  
 }
 
 // p4_base.js start
@@ -225,9 +226,16 @@ function p4_initialize(inspiration) {
   let scaleFactor = 4;
   resizeCanvas(inspiration.image.width / scaleFactor, inspiration.image.height / scaleFactor);
 
+  // Add the original image to #original
+  let canvasContainer = $('.image-container'); // Select the container using jQuery
+  let canvasWidth = canvasContainer.width(); // Get the width of the container
+  const imgHTML = `<img src="${inspiration.assetUrl}" style="width:${canvasWidth}px;">`
+  $('#original').empty();
+  $('#original').append(imgHTML);
+
   let design = {
     bg: 128,
-    circles: Array(1000).fill().map(() => {  // Initialize 10 circles
+    circles: Array(500).fill().map(() => {  // Initialize 100 circles instead of 1000
       let x = random(width);
       let y = random(height);
       let col = inspiration.image.get(x * scaleFactor, y * scaleFactor);  // Sample the color at the circle's location
@@ -235,14 +243,13 @@ function p4_initialize(inspiration) {
         x: x,
         y: y,
         r: random(width/4), // radius of the circle
-        fill: color(col[0], col[1], col[2])  // Use the sampled color
+        fill: color(col[0], col[1], col[2], 128)  // Use the sampled color
       };
     })
   };
 
   return design;
 }
-
 function p4_render(design, inspiration) {
   // Clear the canvas with the background color from the design
   background(design.bg);
@@ -251,6 +258,8 @@ function p4_render(design, inspiration) {
   design.circles.forEach(circle => {
     // Set the fill color to the circle's color
     fill(circle.fill);
+
+    noStroke();
 
     // Draw the circle
     ellipse(circle.x, circle.y, circle.r);
@@ -276,7 +285,7 @@ function p4_mutate(design, inspiration, rate) {
 
     let scaleFactor = 4;
     let col = inspiration.image.get(circle.x * scaleFactor, circle.y * scaleFactor);  // Sample the color at the new location
-    circle.fill = color(col[0], col[1], col[2]);  // Use the sampled color
+    circle.fill = color(col[0], col[1], col[2], 128);  // Use the sampled color
   });
 
   console.log('p4_mutate || After mutation: ', JSON.parse(JSON.stringify({...design})));
