@@ -52,7 +52,7 @@ function setup() {
   currentCanvas = createCanvas(width, height);
   currentCanvas.parent(document.getElementById("active"));
   currentScore = Number.NEGATIVE_INFINITY;
-  currentDesign = p4_initialize(currentInspiration);
+  currentDesign = initDesign(currentInspiration);
   bestDesign = currentDesign;
   image(currentInspiration.image, 0,0, width, height);
   loadPixels();
@@ -64,7 +64,7 @@ function setup() {
 
 /* exported preload, setup, draw */
 /* global memory, dropper, restart, rate, slider, activeScore, bestScore, fpsCounter */
-/* global p4_inspirations, p4_initialize, p4_render, p4_mutate */
+/* global getInspirations, initDesign, renderDesign, mutateDesign */
 
 let bestDesign;
 let currentDesign;
@@ -77,7 +77,7 @@ let currentInspirationPixels;
 function preload() {
   
 
-  let allInspirations = p4_inspirations();
+  let allInspirations = getInspirations();
 
   for (let i = 0; i < allInspirations.length; i++) {
     let insp = allInspirations[i];
@@ -149,10 +149,10 @@ function draw() {
   randomSeed(mutationCount++);
   currentDesign = JSON.parse(JSON.stringify(bestDesign));
   rate.innerHTML = slider.value;
-  p4_mutate(currentDesign, currentInspiration, slider.value/100.0);
+  mutateDesign(currentDesign, currentInspiration, slider.value/100.0);
   
   randomSeed(0);
-  p4_render(currentDesign, currentInspiration);
+  renderDesign(currentDesign, currentInspiration);
   let nextScore = evaluate();
   activeScore.innerHTML = nextScore;
   if (nextScore > currentScore) {
@@ -174,20 +174,10 @@ function draw() {
 
 // my_design.js start
 
-/* exported p4_inspirations, p4_initialize, p4_render, p4_mutate */
+/* exported getInspirations, initDesign, renderDesign, mutateDesign */
 
 
-/*
-TODO: 
-Add the images to your Glitch project assets bucket. 
-Then edit the p4_inspirations() function to return an array of inspiration objects. 
-The first item in the array will be the one used by default.
-Required fields on these objects:
-name: string, a short name for this image to show in the drop-down menu
-assetUrl: string, URL of image in your Glitch assets bucket
-*/
-
-function p4_inspirations() {
+function getInspirations() {
   return [
     {
       name: "Minecraft Shaders Image",
@@ -204,24 +194,7 @@ function p4_inspirations() {
   ];
 }
 
-/* 
-TODO:
-p4_initialize(inspiration)function to return an object with a few different fields 
-(of your choice). The inspiration parameter will be one of the items returned 
-by your p4_inspirations() function with one 
-additional field: image (a p5.Image loaded from assetUrl).
-
-This is a good place to call resizeCanvas to reshape 
-your drawing canvas to something with the same shape as the inspiring image.
-Your generator will run faster if you work with a smaller canvas:
-resizeCanvas(inspiration.image.width / 4, inspiration.image.height / 4);
-*/
-
-// my_design.js start
-
-/* exported p4_inspirations, p4_initialize, p4_render, p4_mutate */
-
-function p4_initialize(inspiration) {
+function initDesign(inspiration) {
   // Resize the canvas to match the inspiration image size
   let scaleFactor = 4;
   resizeCanvas(inspiration.image.width / scaleFactor, inspiration.image.height / scaleFactor);
@@ -234,34 +207,34 @@ function p4_initialize(inspiration) {
   $('#original').append(imgHTML);
 
   let design = {
-    bg: 128,
-    circles: Array(500).fill().map(() => {  // Initialize 100 circles instead of 1000
+    bg: 128, 
+    circles: Array(500).fill().map(() => { 
       let x = random(width);
       let y = random(height);
-      let col = inspiration.image.get(x * scaleFactor, y * scaleFactor);  // Sample the color at the circle's location
+      let col = inspiration.image.get(x * scaleFactor, y * scaleFactor);
       return {
         x: x,
         y: y,
         r: random(width/4), // radius of the circle
-        fill: color(col[0], col[1], col[2], 128)  // Use the sampled color
+        fill: color(col[0], col[1], col[2], 128)
       };
     })
   };
 
   return design;
 }
-function p4_render(design, inspiration) {
+
+function renderDesign(design, inspiration) {
   // Clear the canvas with the background color from the design
   background(design.bg);
 
   // Draw each circle in the design
   design.circles.forEach(circle => {
-    // Set the fill color to the circle's color
     fill(circle.fill);
 
     noStroke();
 
-    // Draw the circle
+    // Draw circle
     ellipse(circle.x, circle.y, circle.r);
   });
 }
@@ -270,25 +243,22 @@ function mut(num, min, max, rate) {
   return constrain(randomGaussian(num, (rate * (max - min)) / 20), min, max);
 }
 
-function p4_mutate(design, inspiration, rate) {
-  console.log("p4_mutate || Before mutation: ", JSON.parse(JSON.stringify({...design})))
+function mutateDesign(design, inspiration, rate) {
+  console.log("mutateDesign || Before mutation: ", JSON.parse(JSON.stringify({...design})))
 
-  // Mutate the background color
   design.bg = mut(design.bg, 0, 255, rate);
 
-  // Iterate over each circle in the design
   design.circles.forEach(circle => {
-    // Mutate the circle's properties
     circle.x = mut(circle.x, 0, width, rate);
     circle.y = mut(circle.y, 0, height, rate);
     circle.r = mut(circle.r, 0, width/4, rate); // mutate the radius
 
     let scaleFactor = 4;
-    let col = inspiration.image.get(circle.x * scaleFactor, circle.y * scaleFactor);  // Sample the color at the new location
-    circle.fill = color(col[0], col[1], col[2], 128);  // Use the sampled color
+    let col = inspiration.image.get(circle.x * scaleFactor, circle.y * scaleFactor); 
+    circle.fill = color(col[0], col[1], col[2], 128);
   });
 
-  console.log('p4_mutate || After mutation: ', JSON.parse(JSON.stringify({...design})));
+  console.log('mutateDesign || After mutation: ', JSON.parse(JSON.stringify({...design})));
 }
 
 // my_design.js end
