@@ -16,14 +16,14 @@ let canvasContainer;
 var centerHorz, centerVert;
 
 class MyClass {
-    constructor(param1, param2) {
-        this.property1 = param1;
-        this.property2 = param2;
-    }
+  constructor(param1, param2) {
+    this.property1 = param1;
+    this.property2 = param2;
+  }
 
-    myMethod() {
-        // code to run when method is called
-    }
+  myMethod() {
+    // code to run when method is called
+  }
 }
 
 function resizeScreen() {
@@ -44,7 +44,7 @@ function setup() {
   // create an instance of the class
   myInstance = new MyClass("VALUE1", "VALUE2");
 
-  $(window).resize(function() {
+  $(window).resize(function () {
     resizeScreen();
   });
   resizeScreen();
@@ -54,10 +54,9 @@ function setup() {
   currentScore = Number.NEGATIVE_INFINITY;
   currentDesign = initDesign(currentInspiration);
   bestDesign = currentDesign;
-  image(currentInspiration.image, 0,0, width, height);
+  image(currentInspiration.image, 0, 0, width, height);
   loadPixels();
   currentInspirationPixels = pixels;
-  
 }
 
 // p4_base.js start
@@ -73,10 +72,7 @@ let currentInspiration;
 let currentCanvas;
 let currentInspirationPixels;
 
-
 function preload() {
-  
-
   let allInspirations = getInspirations();
 
   for (let i = 0; i < allInspirations.length; i++) {
@@ -87,11 +83,10 @@ function preload() {
     option.innerHTML = insp.name;
     dropper.appendChild(option);
   }
-  dropper.onchange = e => inspirationChanged(allInspirations[e.target.value]);
+  dropper.onchange = (e) => inspirationChanged(allInspirations[e.target.value]);
   currentInspiration = allInspirations[0];
 
-  restart.onclick = () =>
-    inspirationChanged(allInspirations[dropper.value]);
+  restart.onclick = () => inspirationChanged(allInspirations[dropper.value]);
 }
 
 function inspirationChanged(nextInspiration) {
@@ -106,14 +101,12 @@ function evaluate() {
 
   let error = 0;
   let n = pixels.length;
-  
+
   for (let i = 0; i < n; i++) {
     error += sq(pixels[i] - currentInspirationPixels[i]);
   }
-  return 1/(1+error/n);
+  return 1 / (1 + error / n);
 }
-
-
 
 function memorialize() {
   let url = currentCanvas.canvas.toDataURL();
@@ -136,21 +129,19 @@ function memorialize() {
   if (memory.childNodes.length > memory.dataset.maxItems) {
     memory.removeChild(memory.lastChild);
   }
-  
 }
 
 let mutationCount = 0;
 
 function draw() {
-  
-  if(!currentDesign) {
+  if (!currentDesign) {
     return;
   }
   randomSeed(mutationCount++);
   currentDesign = JSON.parse(JSON.stringify(bestDesign));
   rate.innerHTML = slider.value;
-  mutateDesign(currentDesign, currentInspiration, slider.value/100.0);
-  
+  mutateDesign(currentDesign, currentInspiration, slider.value / 100.0);
+
   randomSeed(0);
   renderDesign(currentDesign, currentInspiration);
   let nextScore = evaluate();
@@ -161,35 +152,32 @@ function draw() {
     memorialize();
     bestScore.innerHTML = currentScore;
   }
-  
-  fpsCounter.innerHTML = Math.round(frameRate());
 
-    // Draw the original image on the right side of the canvas
-    image(currentInspiration.image, width, 0, width, height);
+  fpsCounter.innerHTML = Math.round(frameRate());
 }
 
-
 // p4_base.js end
-
 
 // my_design.js start
 
 /* exported getInspirations, initDesign, renderDesign, mutateDesign */
 
-
 function getInspirations() {
   return [
     {
       name: "Minecraft Shaders Image",
-      assetUrl: "https://cdn.glitch.global/fd8b4d5e-cacf-4452-bb21-66842720cd64/mcShaders.png?v=1714877775150"
+      assetUrl:
+        "https://cdn.glitch.global/fd8b4d5e-cacf-4452-bb21-66842720cd64/mcShaders.png?v=1714877775150",
     },
     {
       name: "Microsoft Edge Logo",
-      assetUrl: "https://cdn.glitch.global/fd8b4d5e-cacf-4452-bb21-66842720cd64/edge%20logo.png?v=1714695443939"
+      assetUrl:
+        "https://cdn.glitch.global/fd8b4d5e-cacf-4452-bb21-66842720cd64/edge%20logo.png?v=1714695443939",
     },
     {
       name: "Google Chrome Logo",
-      assetUrl: "https://cdn.glitch.global/fd8b4d5e-cacf-4452-bb21-66842720cd64/chrome%20logo.jpg?v=1714695444319"
+      assetUrl:
+        "https://cdn.glitch.global/fd8b4d5e-cacf-4452-bb21-66842720cd64/chrome%20logo.jpg?v=1714695444319",
     },
   ];
 }
@@ -197,28 +185,33 @@ function getInspirations() {
 function initDesign(inspiration) {
   // Resize the canvas to match the inspiration image size
   let scaleFactor = 4;
-  resizeCanvas(inspiration.image.width / scaleFactor, inspiration.image.height / scaleFactor);
+  resizeCanvas(
+    inspiration.image.width / scaleFactor,
+    inspiration.image.height / scaleFactor
+  );
 
   // Add the original image to #original
-  let canvasContainer = $('.image-container'); // Select the container using jQuery
+  let canvasContainer = $(".image-container"); // Select the container using jQuery
   let canvasWidth = canvasContainer.width(); // Get the width of the container
-  const imgHTML = `<img src="${inspiration.assetUrl}" style="width:${canvasWidth}px;">`
-  $('#original').empty();
-  $('#original').append(imgHTML);
+  const imgHTML = `<img src="${inspiration.assetUrl}" style="width:${canvasWidth}px;">`;
+  $("#original").empty();
+  $("#original").append(imgHTML);
 
   let design = {
-    bg: 128, 
-    circles: Array(500).fill().map(() => { 
-      let x = random(width);
-      let y = random(height);
-      let col = inspiration.image.get(x * scaleFactor, y * scaleFactor);
-      return {
-        x: x,
-        y: y,
-        r: random(width/4), // radius of the circle
-        fill: color(col[0], col[1], col[2], 128)
-      };
-    })
+    bg: 128,
+    circles: Array(500)
+      .fill()
+      .map(() => {
+        let x = random(width);
+        let y = random(height);
+        let col = inspiration.image.get(x * scaleFactor, y * scaleFactor);
+        return {
+          x: x,
+          y: y,
+          r: random(width / 4), // radius of the circle
+          fill: color(col[0], col[1], col[2], 128),
+        };
+      }),
   };
 
   return design;
@@ -229,12 +222,11 @@ function renderDesign(design, inspiration) {
   background(design.bg);
 
   // Draw each circle in the design
-  design.circles.forEach(circle => {
+  design.circles.forEach((circle) => {
     fill(circle.fill);
 
     noStroke();
 
-    // Draw circle
     ellipse(circle.x, circle.y, circle.r);
   });
 }
@@ -244,29 +236,27 @@ function mut(num, min, max, rate) {
 }
 
 function mutateDesign(design, inspiration, rate) {
-  console.log("mutateDesign || Before mutation: ", JSON.parse(JSON.stringify({...design})))
-
   design.bg = mut(design.bg, 0, 255, rate);
 
-  design.circles.forEach(circle => {
+  design.circles.forEach((circle) => {
     circle.x = mut(circle.x, 0, width, rate);
     circle.y = mut(circle.y, 0, height, rate);
-    circle.r = mut(circle.r, 0, width/4, rate); // mutate the radius
+    circle.r = mut(circle.r, 0, width / 4, rate); // mutate the radius
 
     let scaleFactor = 4;
-    let col = inspiration.image.get(circle.x * scaleFactor, circle.y * scaleFactor); 
+    let col = inspiration.image.get(
+      circle.x * scaleFactor,
+      circle.y * scaleFactor
+    );
     circle.fill = color(col[0], col[1], col[2], 128);
   });
-
-  console.log('mutateDesign || After mutation: ', JSON.parse(JSON.stringify({...design})));
 }
 
 // my_design.js end
-
 
 // my_design.js end
 
 // mousePressed() function is called once after every time a mouse button is pressed
 function mousePressed() {
-    // code to run when mouse is pressed
+  // code to run when mouse is pressed
 }
